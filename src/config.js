@@ -8,8 +8,7 @@ const config = {
     ? envUrl
     : import.meta.env.DEV
       ? "http://localhost:8000"
-      : "/api"
-        : "",
+      : "/api",
 };
 
 export default config;
