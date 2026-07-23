@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
 from typing import List, Optional
-from backend.mental_health_resources import get_all_resources, get_resources_by_category, search_resources, MENTAL_HEALTH_RESOURCES
+from mental_health_resources import get_all_resources, get_resources_by_category, search_resources, MENTAL_HEALTH_RESOURCES
 router = APIRouter()
 
 class ResourceResponse(BaseModel):
