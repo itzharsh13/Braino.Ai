@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from backend.models import ChatRequest, ChatResponse
-from backend.state import user_manager
-from backend.mental_health_resources import get_all_resources
-from backend.ml_paths import model_file
+from models import ChatRequest, ChatResponse
+from state import user_manager
+from mental_health_resources import get_all_resources
+from ml_paths import model_file
 import pickle
 import random
 
