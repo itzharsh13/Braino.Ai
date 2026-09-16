@@ -62,7 +62,7 @@ const Navbar = ({ onStartChat, onSignIn, isAuthenticated, setView, activeView, u
               </button>
             )}
             <button type="button" onClick={onStartChat} className="btn-web3-primary btn-web3-primary--sm">
-              {isAuthenticated ? 'Launch app' : 'Start care plan'}
+              Chat with Braino
             </button>
             {onLogout && (
               <button type="button" onClick={onLogout} className="btn-web3-outline btn-web3-primary--sm">
@@ -106,7 +106,7 @@ const Navbar = ({ onStartChat, onSignIn, isAuthenticated, setView, activeView, u
             </button>
           )}
           <button type="button" onClick={() => { onStartChat(); setIsOpen(false); }} className="btn-web3-primary w-full mt-2">
-            {isAuthenticated ? 'Launch app' : 'Start care plan'}
+            Chat with Braino
           </button>
           {onLogout && (
             <button type="button" onClick={() => { onLogout(); setIsOpen(false); }} className="btn-web3-outline w-full mt-2">

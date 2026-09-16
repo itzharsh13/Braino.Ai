@@ -68,10 +68,6 @@ function App() {
   };
 
   const handleStartChat = () => {
-    if (!isAuthenticated) {
-      setShowAuth(true);
-      return;
-    }
     setShowChat(true);
   };
 

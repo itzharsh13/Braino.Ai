@@ -9,6 +9,9 @@ export default function Scene3D({ darkMode = false }) {
     const mount = mountRef.current;
     if (!mount) return;
 
+    const lowPowerDevice = window.matchMedia("(max-width: 768px), (prefers-reduced-motion: reduce)").matches;
+    if (lowPowerDevice) return;
+
     const scene = new THREE.Scene();
     const fogColor = 0x020408;
     scene.fog = new THREE.Fog(fogColor, 12, 42);
@@ -17,8 +20,8 @@ export default function Scene3D({ darkMode = false }) {
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 0, 18);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -44,14 +47,14 @@ export default function Scene3D({ darkMode = false }) {
       });
 
     const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(2.4, 64, 64),
+      new THREE.SphereGeometry(2.4, 32, 32),
       makeGlass(accent, 0.5)
     );
     sphere.position.set(-5, 1.5, -2);
     group.add(sphere);
 
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(3.2, 0.35, 32, 100),
+      new THREE.TorusGeometry(3.2, 0.35, 16, 48),
       makeGlass(accent2, 0.45)
     );
     ring.position.set(5, -1, -4);
@@ -59,14 +62,14 @@ export default function Scene3D({ darkMode = false }) {
     group.add(ring);
 
     const blob = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(2.8, 2),
+      new THREE.IcosahedronGeometry(2.8, 1),
       makeGlass(0xc084fc, 0.4)
     );
     blob.position.set(0, -3, -6);
     group.add(blob);
 
     const particlesGeo = new THREE.BufferGeometry();
-    const count = 280;
+    const count = 120;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 40;

@@ -1456,3 +1456,25 @@
     transform: translateY(-50%) rotate(-8deg) scale(0.75);
   }
 }
+
+@media (max-width: 768px) {
+  .ambient-web3__orb {
+    filter: blur(48px);
+  }
+
+  .ambient-web3__hex,
+  .ambient-web3__spot,
+  .ambient-web3__vignette {
+    display: none;
+  }
+
+  .chat-web3-overlay {
+    padding: 0;
+  }
+
+  .chat-web3-panel {
+    max-height: 100dvh;
+    min-height: 100dvh;
+    border-radius: 0;
+  }
+}
