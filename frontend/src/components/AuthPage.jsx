@@ -4,6 +4,28 @@ import config from "../config";
 const AUTH_STORAGE_KEY = "braino_auth_token";
 const USER_STORAGE_KEY = "braino_auth_user";
 
+const formatApiError = (detail) => {
+  if (typeof detail === "string" && detail.trim()) {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item?.msg) return item.msg;
+        return item?.detail || "Invalid request.";
+      })
+      .join(" ");
+  }
+
+  if (detail && typeof detail === "object") {
+    return detail.message || detail.msg || detail.detail || "Authentication failed. Please try again.";
+  }
+
+  return "Authentication failed. Please try again.";
+};
+
 function AuthPage({ onAuthenticated }) {
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({
@@ -44,7 +66,7 @@ function AuthPage({ onAuthenticated }) {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data?.detail || "Authentication failed. Please try again.");
+        throw new Error(formatApiError(data?.detail));
       }
 
       localStorage.setItem(AUTH_STORAGE_KEY, data.access_token);
@@ -54,7 +76,7 @@ function AuthPage({ onAuthenticated }) {
         onAuthenticated(data);
       }
     } catch (submitError) {
-      setError(submitError.message || "Something went wrong.");
+      setError(formatApiError(submitError?.message));
     } finally {
       setIsSubmitting(false);
     }
