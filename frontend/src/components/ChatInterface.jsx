@@ -89,6 +89,12 @@ export default function ChatInterface({ onClose, onOpenEmotionScanner }) {
     stopSpeech();
 
     const payload = { message: text };
+    payload.history = messages
+      .slice(-8)
+      .map((message) => ({
+        role: message.sender === "user" ? "user" : "assistant",
+        content: message.text,
+      }));
     const emotionForSend = detectedEmotion || sessionEmotion;
     if (emotionForSend?.expression) {
       payload.emotion = emotionForSend.expression;
@@ -102,6 +108,9 @@ export default function ChatInterface({ onClose, onOpenEmotionScanner }) {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+      if (!res.ok || typeof data.response !== "string") {
+        throw new Error("The assistant could not answer right now.");
+      }
       setMessages((prev) => [...prev, { id: Date.now() + 1, text: data.response, sender: "bot" }]);
       if (isVoiceEnabled) speakText(data.response);
     } catch {
@@ -152,7 +161,7 @@ export default function ChatInterface({ onClose, onOpenEmotionScanner }) {
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
               <div
-                className={`px-4 py-3 rounded-2xl max-w-[85%] text-sm leading-relaxed ${
+                className={`whitespace-pre-wrap px-4 py-3 rounded-2xl max-w-[85%] text-sm leading-relaxed ${
                   msg.sender === "user" ? "chat-web3-bubble-user" : "chat-web3-bubble-bot"
                 }`}
               >
