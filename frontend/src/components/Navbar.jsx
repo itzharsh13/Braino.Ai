@@ -13,11 +13,6 @@ const Navbar = ({ onStartChat, onSignIn, isAuthenticated, setView, activeView, u
   const [isOpen, setIsOpen] = useState(false);
 
   const go = (id) => {
-    if (!isAuthenticated && id !== 'home') {
-      onSignIn?.();
-      setIsOpen(false);
-      return;
-    }
     setView(id);
     window.location.hash = id === 'home' ? '' : `#${id}`;
     setIsOpen(false);

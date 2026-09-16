@@ -30,11 +30,6 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.add("dark");
     const handleHashChange = () => {
-      if (!localStorage.getItem(AUTH_STORAGE_KEY) && window.location.hash) {
-        setView("home");
-        window.history.replaceState(null, "", window.location.pathname);
-        return;
-      }
       if (window.location.hash === "#wellness") setView("wellness");
       else if (window.location.hash === "#games") setView("games");
       else if (window.location.hash === "#resources") setView("resources");
@@ -72,10 +67,6 @@ function App() {
   };
 
   const handleViewChange = (nextView) => {
-    if (!isAuthenticated && nextView !== "home") {
-      setShowAuth(true);
-      return;
-    }
     setView(nextView);
   };
 
