@@ -19,6 +19,7 @@ const USER_STORAGE_KEY = "braino_auth_user";
 
 function App() {
   const [showChat, setShowChat] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [view, setView] = useState("home");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(() => {
@@ -29,6 +30,11 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.add("dark");
     const handleHashChange = () => {
+      if (!localStorage.getItem(AUTH_STORAGE_KEY) && window.location.hash) {
+        setView("home");
+        window.history.replaceState(null, "", window.location.pathname);
+        return;
+      }
       if (window.location.hash === "#wellness") setView("wellness");
       else if (window.location.hash === "#games") setView("games");
       else if (window.location.hash === "#resources") setView("resources");
@@ -58,6 +64,23 @@ function App() {
     }
 
     setIsAuthenticated(Boolean(nextToken));
+    setShowAuth(false);
+  };
+
+  const handleStartChat = () => {
+    if (!isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+    setShowChat(true);
+  };
+
+  const handleViewChange = (nextView) => {
+    if (!isAuthenticated && nextView !== "home") {
+      setShowAuth(true);
+      return;
+    }
+    setView(nextView);
   };
 
   const handleLogout = () => {
@@ -66,13 +89,10 @@ function App() {
     setUser(null);
     setIsAuthenticated(false);
     setShowChat(false);
+    setShowAuth(false);
     setView("home");
     window.location.hash = "";
   };
-
-  if (!isAuthenticated) {
-    return <AuthPage onAuthenticated={handleAuthenticated} />;
-  }
 
   return (
     <div className="app-shell">
@@ -93,8 +113,10 @@ function App() {
         ) : (
           <>
             <Navbar
-              onStartChat={() => setShowChat(true)}
-              setView={setView}
+              onStartChat={handleStartChat}
+              onSignIn={() => setShowAuth(true)}
+              isAuthenticated={isAuthenticated}
+              setView={handleViewChange}
               activeView={view}
               user={user}
               onLogout={handleLogout}
@@ -112,8 +134,8 @@ function App() {
               <FaceEmotionScanner onStartChat={() => setShowChat(true)} />
             ) : (
               <>
-                <Hero onStartChat={() => setShowChat(true)} />
-                <Features setView={setView} onStartChat={() => setShowChat(true)} />
+                <Hero onStartChat={handleStartChat} />
+                <Features setView={handleViewChange} onStartChat={handleStartChat} />
               </>
             )}
 
@@ -122,6 +144,20 @@ function App() {
           </>
         )}
       </div>
+      {showAuth && !isAuthenticated && (
+        <div className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/30 p-4 backdrop-blur-sm sm:p-8">
+          <div className="mx-auto max-w-6xl">
+            <button
+              type="button"
+              onClick={() => setShowAuth(false)}
+              className="mb-3 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm"
+            >
+              Back to website
+            </button>
+            <AuthPage onAuthenticated={handleAuthenticated} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

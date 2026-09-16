@@ -9,10 +9,15 @@ const navItems = [
   { id: 'resources', label: 'Resources' },
 ];
 
-const Navbar = ({ onStartChat, setView, activeView, user, onLogout }) => {
+const Navbar = ({ onStartChat, onSignIn, isAuthenticated, setView, activeView, user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const go = (id) => {
+    if (!isAuthenticated && id !== 'home') {
+      onSignIn?.();
+      setIsOpen(false);
+      return;
+    }
     setView(id);
     window.location.hash = id === 'home' ? '' : `#${id}`;
     setIsOpen(false);
@@ -51,8 +56,13 @@ const Navbar = ({ onStartChat, setView, activeView, user, onLogout }) => {
                 <span>{user.name?.split(' ')[0] || 'User'}</span>
               </div>
             )}
+            {!isAuthenticated && onSignIn && (
+              <button type="button" onClick={onSignIn} className="btn-web3-outline btn-web3-primary--sm">
+                Sign in
+              </button>
+            )}
             <button type="button" onClick={onStartChat} className="btn-web3-primary btn-web3-primary--sm">
-              Launch app
+              {isAuthenticated ? 'Launch app' : 'Start care plan'}
             </button>
             {onLogout && (
               <button type="button" onClick={onLogout} className="btn-web3-outline btn-web3-primary--sm">
@@ -90,8 +100,13 @@ const Navbar = ({ onStartChat, setView, activeView, user, onLogout }) => {
               {item.label}
             </button>
           ))}
+          {!isAuthenticated && onSignIn && (
+            <button type="button" onClick={() => { onSignIn(); setIsOpen(false); }} className="btn-web3-outline w-full mt-2">
+              Sign in
+            </button>
+          )}
           <button type="button" onClick={() => { onStartChat(); setIsOpen(false); }} className="btn-web3-primary w-full mt-2">
-            Launch app
+            {isAuthenticated ? 'Launch app' : 'Start care plan'}
           </button>
           {onLogout && (
             <button type="button" onClick={() => { onLogout(); setIsOpen(false); }} className="btn-web3-outline w-full mt-2">
