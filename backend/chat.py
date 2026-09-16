@@ -131,7 +131,7 @@ def predict_disease(symptoms):
     input_data = {f: 0 for f in FEATURES}
     input_data.update(symptoms)
 
-    dordered_input = [input_data[feature] for feature in FEATURES]
+    ordered_input = [input_data[feature] for feature in FEATURES]
     pred = model.predict([ordered_input])
 
     if le is not None:

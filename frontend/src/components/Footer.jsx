@@ -10,7 +10,7 @@ const Footer = () => {
               <p className="footer-web3__brand">
                 Braino<span className="text-neon-cyan">AI</span>
               </p>
-              <p className="footer-web3__tagline">Social wellness · Powered by AI</p>
+              <p className="footer-web3__tagline">Calm care, guided by AI.</p>
             </div>
             <div className="footer-web3__links">
               {['Privacy', 'Terms', 'Support', 'Contact'].map((l) => (
@@ -19,7 +19,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="footer-web3__line" />
-          <p className="footer-web3__copy">© 2025 Braino AI · Gcet student. All rights reserved.</p>
+          <p className="footer-web3__copy">© 2025 Braino AI · Mental health support made simpler.</p>
         </div>
       </div>
     </footer>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Clock, Activity, Sparkles, CheckCircle, AlertCircle, Calendar, Brain } from 'lucide-react';
 import InnerCriticTool from './InnerCriticTool';
-import config from '../config';
+import config, { getAuthHeaders } from '../config';
 
 const WellnessTools = ({ darkMode = false }) => {
     const [reminders, setReminders] = useState([]);
@@ -77,9 +77,9 @@ const WellnessTools = ({ darkMode = false }) => {
         try {
            const response = await fetch(`${config.API_URL}/routine/suggest`, {
                 method: 'POST',
-                headers: {
+                headers: getAuthHeaders({
                     'Content-Type': 'application/json',
-                },
+                }),
                 body: JSON.stringify({ problem: routineType }),
             });
 

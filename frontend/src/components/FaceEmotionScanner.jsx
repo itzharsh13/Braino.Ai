@@ -7,7 +7,7 @@ import {
   EXPRESSION_ORDER,
   saveEmotionSession,
 } from "../utils/faceEmotion";
-import config from "../config";
+import config, { getAuthHeaders } from "../config";
 
 const tips = [
   "Face the camera directly in good lighting",
@@ -54,7 +54,7 @@ export default function FaceEmotionScanner({ onStartChat }) {
     try {
       const res = await fetch(`${config.API_URL}/mood/log`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           mood: detected.mood,
           intensity: Math.round((detected.confidence || 0.5) * 10),

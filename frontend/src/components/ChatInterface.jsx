@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Send, Mic, MicOff, Volume2, VolumeX, X, Sparkles } from "lucide-react";
-import config from "../config";
+import config, { getAuthHeaders } from "../config";
 import { speakText, stopSpeech, initializeSpeechRecognition } from "../utils/voiceUtils";
 import FaceEmotionCapture from "./FaceEmotionCapture";
 import { loadEmotionSession } from "../utils/faceEmotion";
@@ -98,7 +98,7 @@ export default function ChatInterface({ onClose, onOpenEmotionScanner }) {
     try {
       const res = await fetch(`${config.API_URL}/chat/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(payload),
       });
       const data = await res.json();

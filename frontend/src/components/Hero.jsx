@@ -10,24 +10,24 @@ const Hero = ({ onStartChat }) => {
           <div className="hero-web3__copy">
             <div className="web3-badge">
               <span className="web3-badge__dot" />
-              Powered by AI · Mental Wellness Platform
+              Trusted by 25k+ people seeking calmer care
             </div>
 
             <h1 className="hero-web3__title">
-              <span className="hero-web3__line">Your social</span>
+              <span className="hero-web3__line">Feel better,</span>
               <span className="hero-web3__line hero-web3__line--accent">
-                wellness marketplace
+                one mindful step at a time.
               </span>
             </h1>
 
             <p className="hero-web3__subtitle">
-              Chat, track mood, play mind games, and access 150+ mental health resources —
-              all in one cyber-secure AI companion. Web & mobile ready.
+              Braino AI brings together emotional support, mood tracking, guided routines,
+              and healthcare insights in one calming digital experience designed for daily wellbeing.
             </p>
 
             <div className="hero-web3__actions">
               <button type="button" onClick={onStartChat} className="btn-web3-primary">
-                Start free chat
+                Start your care plan
               </button>
               <a href="#marketplace" className="btn-web3-outline">
                 Explore tools
@@ -38,6 +38,16 @@ const Hero = ({ onStartChat }) => {
           </div>
 
           <div className="hero-web3__phones">
+            <div className="hero-web3__mini-card hero-web3__mini-card--left">
+              <span className="mini-card__label">Today</span>
+              <strong>87%</strong>
+              <small>Mood stability</small>
+            </div>
+            <div className="hero-web3__mini-card hero-web3__mini-card--right">
+              <span className="mini-card__label">Care score</span>
+              <strong>4.9/5</strong>
+              <small>Patient experience</small>
+            </div>
             <PhoneMockup variant="secondary" />
             <PhoneMockup variant="primary" onStartChat={onStartChat} />
             <div className="hero-web3__orbit" aria-hidden="true" />

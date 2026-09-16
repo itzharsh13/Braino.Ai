@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, BookOpen, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import config from '../config';
+import config, { getAuthHeaders } from '../config';
 
 const MentalHealthResources = ({ onClose, darkMode = false }) => {
     const [resources, setResources] = useState([]);
@@ -19,7 +19,7 @@ const MentalHealthResources = ({ onClose, darkMode = false }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch(`${config.API_URL}/resources/categories`);
+            const response = await fetch(`${config.API_URL}/resources/categories`, { headers: getAuthHeaders() });
             const data = await response.json();
             setCategories(['All', ...data.categories]);
         } catch (error) {
@@ -44,7 +44,7 @@ const MentalHealthResources = ({ onClose, darkMode = false }) => {
                 url += `?${params.toString()}`;
             }
 
-            const response = await fetch(url);
+            const response = await fetch(url, { headers: getAuthHeaders() });
             const data = await response.json();
             setResources(data);
         } catch (error) {

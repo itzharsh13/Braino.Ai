@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, TrendingUp, Calendar, Sparkles } from 'lucide-react';
 import MoodEmoji from './MoodEmoji';
-import config from '../config';
+import config, { getAuthHeaders } from '../config';
 
 const LOCAL_KEY = 'brainoai_unsynced_moods';
 
@@ -79,7 +79,7 @@ const MoodTracker = () => {
         range === 'today'
           ? `${config.API_URL}/mood/today`
           : `${config.API_URL}/mood/history`;
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: getAuthHeaders() });
       if (response.ok) setMoods(await response.json());
     } catch (error) {
       console.error('Error fetching mood history:', error);
@@ -88,7 +88,7 @@ const MoodTracker = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${config.API_URL}/mood/stats`);
+      const response = await fetch(`${config.API_URL}/mood/stats`, { headers: getAuthHeaders() });
       if (response.ok) setStats(await response.json());
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -103,7 +103,7 @@ const MoodTracker = () => {
       try {
         const res = await fetch(`${config.API_URL}/mood/log`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(item),
         });
         if (!res.ok) failed.push(item);
@@ -124,7 +124,7 @@ const MoodTracker = () => {
     try {
       const response = await fetch(`${config.API_URL}/mood/log`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
       });
       if (response.ok) {
@@ -150,7 +150,7 @@ const MoodTracker = () => {
   const handleDeleteMood = async (id) => {
     if (!confirm('Delete this mood entry?')) return;
     try {
-      await fetch(`${config.API_URL}/mood/${id}`, { method: 'DELETE' });
+      await fetch(`${config.API_URL}/mood/${id}`, { method: 'DELETE', headers: getAuthHeaders() });
       fetchMoodHistory();
       fetchStats();
     } catch (error) {

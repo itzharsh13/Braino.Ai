@@ -12,10 +12,19 @@ import MoodTracker from "./components/MoodTracker";
 import FaceEmotionScanner from "./components/FaceEmotionScanner";
 import Scene3D from "./components/Scene3D";
 import AmbientBackground from "./components/AmbientBackground";
+import AuthPage from "./components/AuthPage";
+
+const AUTH_STORAGE_KEY = "braino_auth_token";
+const USER_STORAGE_KEY = "braino_auth_user";
 
 function App() {
   const [showChat, setShowChat] = useState(false);
   const [view, setView] = useState("home");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem(USER_STORAGE_KEY);
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
@@ -28,10 +37,42 @@ function App() {
       else setView("home");
     };
 
+    const token = localStorage.getItem(AUTH_STORAGE_KEY);
+    setIsAuthenticated(Boolean(token));
     window.addEventListener("hashchange", handleHashChange);
     handleHashChange();
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  const handleAuthenticated = (authData) => {
+    const nextUser = authData?.user ?? authData;
+    const nextToken = authData?.access_token ?? localStorage.getItem(AUTH_STORAGE_KEY);
+
+    if (nextToken) {
+      localStorage.setItem(AUTH_STORAGE_KEY, nextToken);
+    }
+
+    if (nextUser) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+      setUser(nextUser);
+    }
+
+    setIsAuthenticated(Boolean(nextToken));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    setUser(null);
+    setIsAuthenticated(false);
+    setShowChat(false);
+    setView("home");
+    window.location.hash = "";
+  };
+
+  if (!isAuthenticated) {
+    return <AuthPage onAuthenticated={handleAuthenticated} />;
+  }
 
   return (
     <div className="app-shell">
@@ -46,6 +87,8 @@ function App() {
               setView("emotion");
               window.location.hash = "#emotion";
             }}
+            user={user}
+            onLogout={handleLogout}
           />
         ) : (
           <>
@@ -53,6 +96,8 @@ function App() {
               onStartChat={() => setShowChat(true)}
               setView={setView}
               activeView={view}
+              user={user}
+              onLogout={handleLogout}
             />
 
             {view === "wellness" ? (

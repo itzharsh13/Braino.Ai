@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const navItems = [
-  { id: 'home', label: 'Home' },
+  { id: 'home', label: 'Overview' },
   { id: 'wellness', label: 'Wellness' },
   { id: 'mood', label: 'Mood' },
   { id: 'emotion', label: 'Face scan' },
@@ -9,7 +9,7 @@ const navItems = [
   { id: 'resources', label: 'Resources' },
 ];
 
-const Navbar = ({ onStartChat, setView, activeView }) => {
+const Navbar = ({ onStartChat, setView, activeView, user, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const go = (id) => {
@@ -42,10 +42,23 @@ const Navbar = ({ onStartChat, setView, activeView }) => {
             ))}
           </nav>
 
-          <div className="nav-web3__actions hidden md:flex">
+          <div className="nav-web3__actions hidden md:flex items-center gap-3">
+            {user && (
+              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+                  {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                </span>
+                <span>{user.name?.split(' ')[0] || 'User'}</span>
+              </div>
+            )}
             <button type="button" onClick={onStartChat} className="btn-web3-primary btn-web3-primary--sm">
               Launch app
             </button>
+            {onLogout && (
+              <button type="button" onClick={onLogout} className="btn-web3-outline btn-web3-primary--sm">
+                Logout
+              </button>
+            )}
           </div>
 
           <button
@@ -80,6 +93,11 @@ const Navbar = ({ onStartChat, setView, activeView }) => {
           <button type="button" onClick={() => { onStartChat(); setIsOpen(false); }} className="btn-web3-primary w-full mt-2">
             Launch app
           </button>
+          {onLogout && (
+            <button type="button" onClick={() => { onLogout(); setIsOpen(false); }} className="btn-web3-outline w-full mt-2">
+              Logout
+            </button>
+          )}
         </div>
       )}
     </header>
