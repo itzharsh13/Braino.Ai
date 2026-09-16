@@ -6,6 +6,7 @@ from pymongo import MongoClient
 load_dotenv()
 
 MONGO_URL = os.getenv("MONGO_URL")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 client = None
 db = None
 
@@ -16,7 +17,7 @@ def _get_client():
         raise RuntimeError("MONGO_URL is not configured")
     if client is None:
         client = MongoClient(MONGO_URL, serverSelectionTimeoutMS=5000)
-        db = client.get_database("braino_ai")
+        db = client[MONGO_DB_NAME] if MONGO_DB_NAME else client.get_default_database()
     return db
 
 
