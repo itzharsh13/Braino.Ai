@@ -1,6 +1,7 @@
 import os
 import re
 import time
+from uuid import uuid4
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
@@ -8,7 +9,10 @@ import bcrypt
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from pymongo.errors import DuplicateKeyError, PyMongoError
 from pydantic import BaseModel, EmailStr, field_validator
+
+from db import get_collection
 
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
@@ -21,8 +25,45 @@ router = APIRouter(prefix="/api/auth")
 security = HTTPBearer(auto_error=False)
 
 USERS: Dict[str, Dict[str, Any]] = {}
+USE_DATABASE = bool(os.getenv("MONGO_URL"))
 RATE_LIMIT_WINDOW_SECONDS = 60
 RATE_LIMIT_MAX_REQUESTS = 5
+
+
+def _users_collection():
+    collection = get_collection("users")
+    collection.create_index("email", unique=True)
+    return collection
+
+
+def _find_user(email: str) -> Optional[Dict[str, Any]]:
+    if not USE_DATABASE:
+        return USERS.get(email)
+
+    try:
+        user = _users_collection().find_one({"email": email}, {"_id": 0})
+    except PyMongoError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication storage is temporarily unavailable.",
+        ) from exc
+    return user
+
+
+def _save_user(user: Dict[str, Any]) -> None:
+    if not USE_DATABASE:
+        USERS[user["email"]] = user
+        return
+
+    try:
+        _users_collection().insert_one(user)
+    except DuplicateKeyError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists.") from exc
+    except PyMongoError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication storage is temporarily unavailable.",
+        ) from exc
 
 
 class RegisterRequest(BaseModel):
@@ -134,7 +175,7 @@ def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depen
     if not email:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token.")
 
-    user = USERS.get(email.lower())
+    user = _find_user(email.lower())
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
     return user
@@ -150,19 +191,19 @@ def require_admin(current_user: Dict[str, Any] = Depends(get_current_user)) -> D
 async def register(request: Request, payload: RegisterRequest):
     _check_rate_limit(request)
     normalized_email = payload.email.lower()
-    if normalized_email in USERS:
+    if _find_user(normalized_email) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An account with this email already exists.")
 
     password_hash = bcrypt.hashpw(payload.password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
     user = {
-        "id": f"user_{len(USERS) + 1}",
+        "id": f"user_{uuid4().hex}",
         "email": normalized_email,
         "name": payload.name.strip(),
         "password_hash": password_hash,
         "is_admin": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    USERS[normalized_email] = user
+    _save_user(user)
     token = _issue_token(normalized_email)
     return {
         "access_token": token,
@@ -176,7 +217,7 @@ async def register(request: Request, payload: RegisterRequest):
 async def login(request: Request, payload: LoginRequest):
     _check_rate_limit(request)
     normalized_email = payload.email.lower()
-    user = USERS.get(normalized_email)
+    user = _find_user(normalized_email)
     if user is None or not bcrypt.checkpw(payload.password.encode("utf-8"), user["password_hash"].encode("utf-8")):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password.")
 

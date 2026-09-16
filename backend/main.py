@@ -9,7 +9,12 @@ load_dotenv()
 
 
 def _validate_required_env():
+    os.environ.setdefault("APP_ENV", "development")
+    os.environ.setdefault("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+
     required = ["JWT_SECRET"]
+    if os.getenv("APP_ENV", "development").lower() == "production":
+        required.append("MONGO_URL")
     missing = []
     for name in required:
         value = os.getenv(name)
@@ -19,10 +24,6 @@ def _validate_required_env():
     if missing:
         joined = ", ".join(missing)
         raise RuntimeError(f"Missing required environment variables: {joined}")
-
-    os.environ.setdefault("APP_ENV", "development")
-    os.environ.setdefault("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
-
 
 _validate_required_env()
 
